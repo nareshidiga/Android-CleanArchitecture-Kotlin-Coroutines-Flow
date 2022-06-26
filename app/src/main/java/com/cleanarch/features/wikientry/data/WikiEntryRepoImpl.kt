@@ -6,6 +6,7 @@ import com.cleanarch.features.wikientry.data.local.WikiEntryTable
 import com.cleanarch.features.wikientry.data.remote.WikiApiService
 import com.cleanarch.features.wikientry.data.remote.WikiEntryApiResponse
 import com.cleanarch.features.wikientry.entities.WikiEntry
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
@@ -36,6 +37,7 @@ constructor(private val appDatabase: AppDatabase, private val wikiApiService: Wi
     WikiEntryRepo {
 
     // Solution-1: make local db as the single source of truth
+    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun getWikiEntry(title: String): Flow<WikiEntry> {
         Log.d(TAG, "fetch from local")
         val entries = appDatabase.wikiEntryDao().getByTitle(title)

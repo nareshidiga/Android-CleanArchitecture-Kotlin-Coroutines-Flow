@@ -27,6 +27,13 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -47,6 +54,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }
 
@@ -87,9 +95,6 @@ dependencies {
     // Retrofit
     implementation deps.retrofit.runtime
     implementation deps.retrofit.gson
-
-    // Others
-    implementation deps.glide.runtime
 
     // Dependencies for local unit tests
     testImplementation deps.junit
