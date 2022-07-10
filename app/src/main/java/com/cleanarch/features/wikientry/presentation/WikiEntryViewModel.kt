@@ -37,34 +37,41 @@ import javax.inject.Inject
 
 class WikiEntryViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var wikiEntry: MutableLiveData<WikiEntry>
+    private val _wikiEntry: MutableLiveData<WikiEntry> by lazy {
+        MutableLiveData<WikiEntry>()
+    }
+    val wikiEntry: LiveData<WikiEntry>
+        get() = _wikiEntry
+
+    private val _showProgress: MutableLiveData<Boolean> by lazy {
+        MutableLiveData<Boolean>(false)
+    }
+    val showProgress: LiveData<Boolean>
+        get() = _showProgress
 
     @Inject
     lateinit var getWikiEntryUseCase: Lazy<GetWikiEntryUseCase>
 
     init {
         (application as CleanArchApp).wikiEntryComponent?.inject(this)
-        wikiEntry = MutableLiveData<WikiEntry>()
-    }
-
-    internal fun getWikiEntry(): LiveData<WikiEntry> {
-        return wikiEntry
     }
 
     internal fun loadWikiEntry(title: String) {
         viewModelScope.launch {
+            _showProgress.value = true
             val item = withContext(Dispatchers.IO) {
                 getWikiEntryUseCase.get()
                     .execute(GetWikiEntryUseCase.Input(title))
-                    .onCompletion { Log.d(TAG,"completed wiki query") }
+                    .onCompletion { Log.d(TAG, "completed wiki query") }
                     .catch { exception -> Log.d(TAG, "Received $exception") }
                     .firstOrNull()
             }
-            wikiEntry.value = item ?: WikiEntry(
+            _wikiEntry.value = item ?: WikiEntry(
                 -1,
                 "",
                 getApplication<Application>().getString(R.string.no_results_found)
             )
+            _showProgress.value = false
         }
     }
 

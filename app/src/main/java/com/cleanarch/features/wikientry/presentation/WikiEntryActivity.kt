@@ -39,16 +39,16 @@ class WikiEntryActivity : AppCompatActivity() {
         (application as CleanArchApp).buildWikiEntryComponent()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-
+        setContentView(binding.root)
         binding.submitButton.setOnClickListener(submitButtonOnClickListener)
 
         wikiEntryViewModel = ViewModelProvider(this)[WikiEntryViewModel::class.java]
-        wikiEntryViewModel.getWikiEntry().observe(this) { wikiEntry ->
-            Log.d(Companion.TAG, "received update for wikiEntry")
-            binding.entryDetails.text = wikiEntry?.extract
-            binding.progressBar.hide()
+        wikiEntryViewModel.wikiEntry.observe(this) {
+            Log.d(TAG, "received update for wikiEntry")
+            binding.entryDetails.text = it?.extract
+        }
+        wikiEntryViewModel.showProgress.observe(this) {
+            if (it) binding.progressBar.show() else binding.progressBar.hide()
         }
     }
 
@@ -59,7 +59,6 @@ class WikiEntryActivity : AppCompatActivity() {
     }
 
     private val submitButtonOnClickListener = View.OnClickListener { v ->
-        binding.progressBar.show()
         val inputMethodManager =
             this@WikiEntryActivity.baseContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
